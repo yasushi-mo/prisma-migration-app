@@ -1,0 +1,30 @@
+services:
+  app:
+    container_name: "app-container"
+    build: . # 現在のディレクトリのDockerfileを使用してビルド
+    ports:
+      - "3000:3000" # ホスト:コンテナのポートマッピング
+    volumes:
+      - ./:/app # ホットリロード用のバインドマウント
+    environment:
+      # Prismaが使用するデータベース接続URL
+      DATABASE_URL: "postgresql://user:password@db:5432/sample"
+    depends_on:
+      - db # dbサービスの起動を待つ
+
+  db:
+    container_name: "db-container"
+    image: postgres:17.5 # PostgreSQL公式イメージの最新版
+    ports:
+      - "5432:5432" # PostgreSQLの標準ポート
+    volumes:
+      # 名前付きボリューム（データ永続化）
+      - db-volume:/var/lib/postgresql/data
+    environment:
+      # PostgreSQL初期設定
+      POSTGRES_DB: sample # 作成するデータベース名
+      POSTGRES_USER: user # データベースユーザー名
+      POSTGRES_PASSWORD: password # データベースパスワード
+
+volumes:
+  db-volume: # PostgreSQLデータの永続化用ボリューム
